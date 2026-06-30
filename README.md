@@ -151,7 +151,7 @@ jupyter>=1.0.0
 ## 👤 Autor
 
 **Hiago Emboava Arantes dos Santos**
-Engenharia Naval | Análise de Dados | Gestão de Projetos com IA
+Oficial da Marinha do Brasil | Análise de Dados | Gestão de Projetos com IA
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Conectar-0077B5?logo=linkedin&logoColor=white)](https://linkedin.com/in/seu-usuario)
 [![GitHub](https://img.shields.io/badge/GitHub-Perfil-181717?logo=github&logoColor=white)](https://github.com/seu-usuario)
