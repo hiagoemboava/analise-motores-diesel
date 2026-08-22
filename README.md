@@ -139,6 +139,20 @@ jupyter>=1.0.0
 
 ---
 
+## 🖥️ Sistema NEREUS — do protótipo de análise ao monitoramento em produção
+
+Esta análise exploratória foi o ponto de partida. Ela evoluiu para o
+**NEREUS**, um sistema completo de monitoramento embarcado dos motores
+principais, hoje em produção (V12): leitura Modbus contínua via AMVIF08,
+motor de alarmes de 6 níveis de severidade, dashboard com alarmes sonoros,
+apuração automática de horímetro por motor e um módulo de manutenção
+programada integrado ao SMP oficial da embarcação.
+
+O código-fonte, arquitetura e histórico de versões estão em
+[`sistema-nereus-v12/`](./sistema-nereus-v12/).
+
+---
+
 ## 📈 Próximos Passos
 
 - [ ] Implementar modelo de **detecção de anomalias** (Isolation Forest / Z-Score dinâmico)
