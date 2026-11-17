@@ -143,13 +143,14 @@ jupyter>=1.0.0
 
 Esta análise exploratória foi o ponto de partida. Ela evoluiu para o
 **NEREUS**, um sistema completo de monitoramento embarcado dos motores
-principais, hoje em produção (V12): leitura Modbus contínua via AMVIF08,
-motor de alarmes de 6 níveis de severidade, dashboard com alarmes sonoros,
-apuração automática de horímetro por motor e um módulo de manutenção
-programada integrado ao SMP oficial da embarcação.
+principais: leitura Modbus contínua via AMVIF08, motor de alarmes de 6
+níveis de severidade, dashboard com alarmes sonoros, apuração automática de
+horímetro por motor, módulo de manutenção programada integrado ao SMP oficial
+da embarcação e passagem de serviço. A V12 é a versão em operação a bordo; a
+V13.2, montada e testada fora do navio, aguarda instalação e homologação.
 
 O código-fonte, arquitetura e histórico de versões estão em
-[`sistema-nereus-v12/`](./sistema-nereus-v12/).
+[`sistema-nereus-v13.2/`](./sistema-nereus-v13.2/).
 
 ---
 

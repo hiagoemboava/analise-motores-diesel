@@ -20,6 +20,45 @@
  *
  **/
 
+// ═══ NEREUS Fase 0/1 — pedaço 1 (inserido em 22/09/2026) ═══
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+
+// Modo manutenção: só liga com NEREUS_MANUTENCAO=1. O serviço nunca define.
+const NEREUS_MANUTENCAO = process.env.NEREUS_MANUTENCAO === "1";
+
+// Versão corrente do sistema. Aparece no rodapé do painel.
+const NEREUS_VERSAO = "v13.2";
+
+// __dirname é o userDir do Node-RED (serviço ou console).
+const NEREUS_FLOWFILE = path.join(__dirname, "flows.json");
+
+// Registro de homologação, lido pelo nó de integridade.
+const NEREUS_HOMOLOG = "C:\\Dados_Motor\\config\\nereus_homologacao.json";
+
+// v13.2: instante em que ESTE processo do Node-RED subiu. A passagem de serviço compara
+// com o valor gravado no banco para distinguir "o sistema foi desligado e religado"
+// (encerra o serviço do militar) de "novo deploy" (não encerra).
+const NEREUS_BOOT_MS = Date.now();
+
+// v13.2: autenticação do painel (usuário e senha antes do Dashboard).
+const NEREUS_CONFIG_DIR = "C:\\Dados_Motor\\config";
+const NEREUS_LOG_DIR = "C:\\Dados_Motor\\Registro_Historico";
+let NEREUS_AUTH;
+try {
+    NEREUS_AUTH = require(path.join(__dirname, "nereus_auth.js")).criarAuth({ dirConfig: NEREUS_CONFIG_DIR, dirLog: NEREUS_LOG_DIR });
+} catch (e) {
+    // Falha fechada: sem o módulo de autenticação o painel NÃO abre sem login.
+    // A aquisição, o diagnóstico, o CSV e os alarmes continuam rodando.
+    console.error("[NEREUS] autenticação indisponível: " + e.message);
+    NEREUS_AUTH = {
+        middleware: function (req, res) { res.statusCode = 503; res.setHeader("Content-Type", "text/plain; charset=utf-8"); res.end("NEREUS: autenticação indisponível. Verifique o arquivo nereus_auth.js na pasta do Node-RED."); },
+        ioMiddleware: function (socket, next) { next(new Error("auth_indisponivel")); }
+    };
+}
+// ═══ fim do pedaço 1 ═══
+
 module.exports = {
 
 /*******************************************************************************
@@ -77,10 +116,21 @@ module.exports = {
     //    type: "credentials",
     //    users: [{
     //        username: "admin",
-    //        password: "$2a$08$zZWtXTja0fB1pzD4sHCMyOCMYz2Z6dNbM6tl8sJogENOMcxWV9DN.",
+    //        password: "$2y$08$Wf/Y7qtHx82MNMqrvSoZEOlc5vZ2qQ3qIqdiGeSSmOLLSTw/JPogG.",
     //        permissions: "*"
     //    }]
     //},
+    // NEREUS: senha do editor (usuário "manutencao"), só em modo manutenção.
+    adminAuth: NEREUS_MANUTENCAO ? {
+        type: "credentials",
+        users: [
+            {
+                username: "manutencao",
+                password: "SUBSTITUIR_PELO_HASH_BCRYPT_DO_EDITOR",
+                permissions: "*"
+            }
+        ]
+    } : undefined,
 
     /** The following property can be used to enable HTTPS
      * This property can be either an object, containing both a (private) key
@@ -168,6 +218,8 @@ module.exports = {
      * If set to false, this is disabled.
      */
     //httpAdminRoot: '/admin',
+    // NEREUS: editor desligado em operação; só existe em modo manutenção.
+    httpAdminRoot: NEREUS_MANUTENCAO ? "/admin" : false,
 
     /** The following property can be used to add a custom middleware function
      * in front of all admin http routes. For example, to set custom http
@@ -554,6 +606,14 @@ module.exports = {
      */
     functionGlobalContext: {
         // os:require('os'),
+        // NEREUS: integridade (Fase 0) e carregador de configuração (Fase 1)
+        fs: fs,
+        crypto: crypto,
+        NEREUS_VERSAO: NEREUS_VERSAO,
+        NEREUS_FLOWFILE: NEREUS_FLOWFILE,
+        NEREUS_HOMOLOG: NEREUS_HOMOLOG,
+        NEREUS_CONFIG_DIR: NEREUS_CONFIG_DIR,
+        NEREUS_BOOT_MS: NEREUS_BOOT_MS
     },
 
     /** The maximum number of messages nodes will buffer internally as part of their
@@ -569,7 +629,7 @@ module.exports = {
      *  middleware:{function or array}, (req,res,next) - http middleware
      *  ioMiddleware:{function or array}, (socket,next) - socket.io middleware
      */
-    //ui: { path: "ui" },
+    ui: { path: "ui", middleware: NEREUS_AUTH.middleware, ioMiddleware: NEREUS_AUTH.ioMiddleware },
 
     /** Colourise the console output of the debug node */
     //debugUseColors: true,
